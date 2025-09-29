@@ -11,22 +11,21 @@ import fr.eseo.ld.mm.whatcolor.model.ColourData
 import fr.eseo.ld.mm.whatcolor.model.Colours
 import fr.eseo.ld.mm.whatcolor.ui.state.GameUiState
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.update
 import kotlin.random.Random
 
 class GameViewModel : ViewModel() {
-    // Private MutableStateFlow for UI state
     private val _uiState = MutableStateFlow(GameUiState())
-    // Public StateFlow for UI state
+
     val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
 
-    // User guess state
+
     var userGuess by mutableIntStateOf(-1)
         private set
 
-    // Timer job
     private var timerJob: Job? = null
 
-    // Select a random colour, optionally excluding one
+    // slect a random colour, optionally excluding one
     private fun selectRandomColour(exemptColour: ColourData? = null): ColourData {
         val filteredList = if (exemptColour != null) {
             Colours.colours.filter { it != exemptColour }
@@ -35,5 +34,17 @@ class GameViewModel : ViewModel() {
         }
         val randomIndex = Random.nextInt(filteredList.size)
         return filteredList[randomIndex]
+    }
+
+    private fun updateGameState(score: Int) {
+        val correctColour = selectRandomColour()
+        val incorrectColour = selectRandomColour(correctColour)
+        _uiState.update { currentState ->
+            currentState.copy(
+                currentCorrectColour = correctColour,
+                currentIncorrectColour = incorrectColour,
+                currentScore = score
+            )
+        }
     }
 }
