@@ -11,8 +11,11 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -24,12 +27,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
 import fr.eseo.ld.mm.whatcolor.R
 import fr.eseo.ld.mm.whatcolor.model.ColourData
 import fr.eseo.ld.mm.whatcolor.model.PreviousGuess
 import fr.eseo.ld.mm.whatcolor.model.Colours
-
+import fr.eseo.ld.mm.whatcolor.ui.state.GameUiState
+import fr.eseo.ld.mm.whatcolor.ui.viewmodels.GameViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlin.math.max
 
 @Composable
@@ -160,7 +167,37 @@ fun GameCard(
 }
 
 @Composable
-fun GameScreen(modifier: Modifier = Modifier) {
+fun GameScreen(
+    viewModel: GameViewModel,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    val gameUiState by viewModel.uiState.collectAsState()
+    val (option1, option2) = remember(
+        gameUiState.currentCorrectColour,
+        gameUiState.currentIncorrectColour
+    ) {
+        if ((0..1).random() == 0) {
+            gameUiState.currentCorrectColour to gameUiState.currentIncorrectColour
+        } else {
+            gameUiState.currentIncorrectColour to gameUiState.currentCorrectColour
+        }
+    }
+
+    DisposableEffect(Unit) {
+        viewModel.startGame()
+        onDispose {
+            viewModel.stopGame()
+        }
+    }
+
+    if (gameUiState.timeLeft <= 0) {
+        LaunchedEffect(Unit) {
+            Toast.makeText(context, R.string.game_over, Toast.LENGTH_LONG).show()
+            viewModel.recordScore()
+        }
+    }
+
     Column(
         modifier = modifier
             .statusBarsPadding()
@@ -168,14 +205,18 @@ fun GameScreen(modifier: Modifier = Modifier) {
             .padding(8.dp)
     ) {
         Text(
-            text = stringResource(id = R.string.time_left_label, 60, 0)
+            text = stringResource(
+                id = R.string.time_left_label,
+                gameUiState.timeLeft / 1000,
+                (gameUiState.timeLeft % 1000) / 10
+            )
         )
         GameCard(
-            currentCorrectColour = Colours.colours[0],
-            currentIncorrectColour = Colours.colours[1],
-            option1 = Colours.colours[0],
-            option2 = Colours.colours[1],
-            onClick = {},
+            currentCorrectColour = gameUiState.currentCorrectColour,
+            currentIncorrectColour = gameUiState.currentIncorrectColour,
+            option1 = option1,
+            option2 = option2,
+            onClick = { viewModel.checkUserGuess(it) },
             modifier = modifier.padding(8.dp)
         )
         Box(
@@ -184,10 +225,7 @@ fun GameScreen(modifier: Modifier = Modifier) {
                 .weight(1f)
         ) {
             PreviousGuessList(
-                previousGuesses = listOf(
-                    PreviousGuess(Colours.colours[0], Colours.colours[1]),
-                    PreviousGuess(Colours.colours[3], Colours.colours[3])
-                )
+                previousGuesses = gameUiState.previousGuesses
             )
         }
     }
@@ -196,5 +234,20 @@ fun GameScreen(modifier: Modifier = Modifier) {
 @Preview(showBackground = true)
 @Composable
 fun GameScreenPreview() {
-    GameScreen()
+    // preview with fake data
+    val fakeUiState = GameUiState(
+        currentCorrectColour = Colours.colours[0],
+        currentIncorrectColour = Colours.colours[1],
+        previousGuesses = listOf(
+            PreviousGuess(Colours.colours[0], Colours.colours[1]),
+            PreviousGuess(Colours.colours[3], Colours.colours[3])
+        ),
+        timeLeft = 5000,
+        currentScore = 2
+    )
+    val fakeViewModel = (object : GameViewModel() {
+        override val uiState: StateFlow<GameUiState> = MutableStateFlow(fakeUiState)
+    }).also {
+        GameScreen(viewModel = it)
+    }
 }

@@ -22,10 +22,10 @@ import fr.eseo.ld.mm.whatcolor.model.Colours
 import fr.eseo.ld.mm.whatcolor.model.PreviousGuess
 import fr.eseo.ld.mm.whatcolor.ui.state.GameUiState
 
-class GameViewModel : ViewModel() {
+open class GameViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(GameUiState())
 
-    val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
+    open val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
 
 
     var userGuess by mutableIntStateOf(-1)
