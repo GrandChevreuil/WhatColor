@@ -9,6 +9,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
 import fr.eseo.ld.mm.whatcolor.model.ColourData
 import fr.eseo.ld.mm.whatcolor.model.Colours
+import fr.eseo.ld.mm.whatcolor.model.PreviousGuess
 import fr.eseo.ld.mm.whatcolor.ui.state.GameUiState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.update
@@ -34,6 +35,34 @@ class GameViewModel : ViewModel() {
         }
         val randomIndex = Random.nextInt(filteredList.size)
         return filteredList[randomIndex]
+    }
+
+    // update game state when time changes
+    private fun updateGameState(time: Long) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                timeLeft = time
+            )
+        }
+    }
+
+    // update game state white last score and high local score
+    private fun updateGameState(lastScore: Int, highScore: Int) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                localHighScore = highScore,
+                lastScore = lastScore
+            )
+        }
+    }
+
+    // updtate game state with a new previous guess
+    private fun updateGameState(previousGuess: PreviousGuess) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                previousGuesses = _uiState.value.previousGuesses + previousGuess
+            )
+        }
     }
 
     private fun updateGameState(score: Int) {
