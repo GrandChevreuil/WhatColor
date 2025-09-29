@@ -20,13 +20,23 @@ import kotlin.random.Random
 import fr.eseo.ld.mm.whatcolor.model.ColourData
 import fr.eseo.ld.mm.whatcolor.model.Colours
 import fr.eseo.ld.mm.whatcolor.model.PreviousGuess
+import fr.eseo.ld.mm.whatcolor.model.WhatColourDataStore
 import fr.eseo.ld.mm.whatcolor.ui.state.GameUiState
+import androidx.lifecycle.ViewModelProvider
+import java.lang.IllegalArgumentException
 
-open class GameViewModel : ViewModel() {
+open class GameViewModel(private val dataStore: WhatColourDataStore) : ViewModel() {
     private val _uiState = MutableStateFlow(GameUiState())
 
     open val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
 
+    init {
+        viewModelScope.launch {
+            dataStore.uiStateFlow.collect { state ->
+                _uiState.value = state
+            }
+        }
+    }
 
     var userGuess by mutableIntStateOf(-1)
         private set
@@ -55,11 +65,10 @@ open class GameViewModel : ViewModel() {
 
     // update game state white last score and high local score
     private fun updateGameState(lastScore: Int, highScore: Int) {
-        _uiState.update { currentState ->
-            currentState.copy(
-                localHighScore = highScore,
-                lastScore = lastScore
-            )
+        viewModelScope.launch {
+            dataStore.saveScores(lastScore, highScore)
+            _uiState.value =
+                _uiState.value.copy(localHighScore = highScore, lastScore = lastScore)
         }
     }
 
@@ -151,5 +160,16 @@ open class GameViewModel : ViewModel() {
         val lastScore = _uiState.value.currentScore
         val highScore = if (lastScore > _uiState.value.localHighScore) lastScore else _uiState.value.localHighScore
         updateGameState(lastScore, highScore)
+    }
+}
+
+class GameViewModelFactory(
+    private val dataStore: WhatColourDataStore
+) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(GameViewModel::class.java)) {
+            return GameViewModel(dataStore) as T
+        }
+        throw IllegalArgumentException("Wrong VM class")
     }
 }

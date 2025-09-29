@@ -234,26 +234,28 @@ fun GameScreen(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun GameScreenPreview() {
-    // preview with fake data
-    val fakeUiState = GameUiState(
-        currentCorrectColour = Colours.colours[0],
-        currentIncorrectColour = Colours.colours[1],
-        previousGuesses = listOf(
-            PreviousGuess(Colours.colours[0], Colours.colours[1]),
-            PreviousGuess(Colours.colours[3], Colours.colours[3])
-        ),
-        timeLeft = 5000,
-        currentScore = 2
-    )
-    val fakeViewModel = (object : GameViewModel() {
-        override val uiState: StateFlow<GameUiState> = MutableStateFlow(fakeUiState)
-    }).also {
-        GameScreen(
-            viewModel = it,
-            navController = NavHostController(LocalContext.current)
-        )
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun GameScreenPreview() {
+//    // preview with fake data
+//    val fakeUiState = GameUiState(
+//        currentCorrectColour = Colours.colours[0],
+//        currentIncorrectColour = Colours.colours[1],
+//        previousGuesses = listOf(
+//            PreviousGuess(Colours.colours[0], Colours.colours[1]),
+//            PreviousGuess(Colours.colours[3], Colours.colours[3])
+//        ),
+//        timeLeft = 5000,
+//        currentScore = 2
+//    )
+//    val fakeViewModel = (object : GameViewModel(
+//        dataStore = null
+//    ) {
+//        override val uiState: StateFlow<GameUiState> = MutableStateFlow(fakeUiState)
+//    }).also {
+//        GameScreen(
+//            viewModel = it,
+//            navController = NavHostController(LocalContext.current)
+//        )
+//    }
+//}

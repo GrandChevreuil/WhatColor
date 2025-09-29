@@ -10,6 +10,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -19,10 +20,12 @@ import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.composable
 import fr.eseo.ld.mm.whatcolor.R
+import fr.eseo.ld.mm.whatcolor.model.WhatColourDataStore
 import fr.eseo.ld.mm.whatcolor.ui.navigation.WhatColourScreens
 import fr.eseo.ld.mm.whatcolor.ui.screens.GameScreen
 import fr.eseo.ld.mm.whatcolor.ui.screens.WelcomeScreen
 import fr.eseo.ld.mm.whatcolor.ui.viewmodels.GameViewModel
+import fr.eseo.ld.mm.whatcolor.ui.viewmodels.GameViewModelFactory
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -55,7 +58,10 @@ private fun WhatColourAppBar(
 fun WhatColourApp(
     navController: NavHostController = rememberNavController()
 ) {
-    val viewModel: GameViewModel = viewModel()
+    val context = LocalContext.current
+    val dataStore = WhatColourDataStore(context)
+    val factory = GameViewModelFactory(dataStore)
+    val viewModel: GameViewModel = androidx.lifecycle.viewmodel.compose.viewModel(factory = factory)
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentScreen = WhatColourScreens.valueOf(
         backStackEntry?.destination?.route ?: WhatColourScreens.WELCOME.name
