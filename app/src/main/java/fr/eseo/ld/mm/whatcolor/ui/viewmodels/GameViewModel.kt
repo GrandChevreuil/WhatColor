@@ -14,6 +14,9 @@ import fr.eseo.ld.mm.whatcolor.ui.state.GameUiState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.update
 import kotlin.random.Random
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 
 class GameViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(GameUiState())
@@ -75,5 +78,44 @@ class GameViewModel : ViewModel() {
                 currentScore = score
             )
         }
+    }
+
+    // begin the game timer
+    private fun startTimer() {
+        timerJob?.cancel()
+        timerJob = viewModelScope.launch {
+            while (_uiState.value.timeLeft > 0) {
+                val delayTime: Long = if (_uiState.value.timeLeft > 10000) {
+                    1000
+                } else {
+                    100
+                }
+                delay(delayTime)
+                val timeLeftAfterTick = _uiState.value.timeLeft.minus(delayTime)
+                updateGameState(timeLeftAfterTick)
+            }
+        }
+    }
+
+    // stop timer
+    fun stopGame() {
+        timerJob?.cancel()
+    }
+
+    // new game and new timer
+    fun startGame() {
+        val correctColour = selectRandomColour()
+        val incorrectColour = selectRandomColour(correctColour)
+        _uiState.update { currentState ->
+            currentState.copy(
+                currentCorrectColour = correctColour,
+                currentIncorrectColour = incorrectColour,
+                currentScore = 0,
+                timeLeft = 60000,
+                guessedColourIndex = -1,
+                previousGuesses = emptyList()
+            )
+        }
+        startTimer()
     }
 }
