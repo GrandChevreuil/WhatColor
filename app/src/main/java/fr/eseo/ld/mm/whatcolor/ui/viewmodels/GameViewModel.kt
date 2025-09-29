@@ -1,22 +1,26 @@
 package fr.eseo.ld.mm.whatcolor.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import androidx.lifecycle.viewModelScope
+
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
+
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
+
+import kotlin.random.Random
+
 import fr.eseo.ld.mm.whatcolor.model.ColourData
 import fr.eseo.ld.mm.whatcolor.model.Colours
 import fr.eseo.ld.mm.whatcolor.model.PreviousGuess
 import fr.eseo.ld.mm.whatcolor.ui.state.GameUiState
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.update
-import kotlin.random.Random
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.delay
 
 class GameViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(GameUiState())
@@ -117,5 +121,35 @@ class GameViewModel : ViewModel() {
             )
         }
         startTimer()
+    }
+
+    // verify user guess, update score or time and add to previous guesses
+    fun checkUserGuess(guessedColourId: Int) {
+        userGuess = guessedColourId
+        val previousGuess: PreviousGuess
+        if (userGuess == _uiState.value.currentCorrectColour.nameId) {
+            previousGuess = PreviousGuess(
+                _uiState.value.currentCorrectColour,
+                _uiState.value.currentCorrectColour
+            )
+            val updatedScore = _uiState.value.currentScore + 1
+            updateGameState(score = updatedScore)
+        } else {
+            previousGuess = PreviousGuess(
+                _uiState.value.currentCorrectColour,
+                _uiState.value.currentIncorrectColour
+            )
+            val timeLeftAfterPenalty = _uiState.value.timeLeft - 2000
+            updateGameState(time = timeLeftAfterPenalty)
+        }
+        updateGameState(previousGuess)
+        userGuess = -1
+    }
+
+    // save final score and update high score if needed
+    fun recordScore() {
+        val lastScore = _uiState.value.currentScore
+        val highScore = if (lastScore > _uiState.value.localHighScore) lastScore else _uiState.value.localHighScore
+        updateGameState(lastScore, highScore)
     }
 }
