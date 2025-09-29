@@ -21,11 +21,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import fr.eseo.ld.mm.whatcolor.R
 import fr.eseo.ld.mm.whatcolor.model.ColourData
 import fr.eseo.ld.mm.whatcolor.model.PreviousGuess
+import fr.eseo.ld.mm.whatcolor.model.Colours
 import kotlin.math.max
 
 @Composable
@@ -153,4 +155,44 @@ fun GameCard(
             )
         }
     }
+}
+
+@Composable
+fun GameScreen(modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+            .statusBarsPadding()
+            .safeDrawingPadding()
+            .padding(8.dp)
+    ) {
+        Text(
+            text = stringResource(id = R.string.time_left_label, 60, 0)
+        )
+        GameCard(
+            currentCorrectColour = Colours.colours[0],
+            currentIncorrectColour = Colours.colours[1],
+            option1 = Colours.colours[0],
+            option2 = Colours.colours[1],
+            onClick = {},
+            modifier = modifier.padding(8.dp)
+        )
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .weight(1f)
+        ) {
+            PreviousGuessList(
+                previousGuesses = listOf(
+                    PreviousGuess(Colours.colours[0], Colours.colours[1]),
+                    PreviousGuess(Colours.colours[3], Colours.colours[3])
+                )
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun GameScreenPreview() {
+    GameScreen()
 }
