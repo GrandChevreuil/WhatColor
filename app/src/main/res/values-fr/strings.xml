@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">WhatColor</string>
+    <string name="colour_black">Noir</string>
+    <string name="colour_blue">Bleu</string>
+    <string name="colour_red">Rouge</string>
+    <string name="colour_purple">Violet</string>
+    <string name="colour_green">Vert</string>
+    <string name="colour_cyan">Cyan</string>
+    <string name="colour_yellow">Jaune</string>
+    <string name="colour_white">Blanc</string>
+    <string name="colour_brown">Marron</string>
+    <string name="colour_orange">Orange</string>
+    <string name="colour_pink">Rose</string>
+    <string name="colour_grey">Gris</string>
+    <string name="back_button">Retour</string>
+    <string name="game_description">Combien de couleurs pouvez-vous identifier en 60 secondes ?</string>
+    <string name="play_game_button">Jouer au Jeu !</string>
+    <string name="last_score">Score : %d points</string>
+    <string name="local_high_score">Meilleur score : %d points</string>
+    <string name="show_global_scores_button">Afficher podium</string>
+    <string name="time_left_label">Il vous reste %02d.%02d secondes</string>
+    <string name="game_over">Jeu terminé !</string>
+    <string name="play_game_ls_button">Jouer !</string>
+    <string name="show_global_scores_ls_button">Podium</string>
+    <string name="actual_message">La couleur était %s,</string>
+    <string name="guessed_message">mais vous avez choisi %s.</string>
+</resources>
