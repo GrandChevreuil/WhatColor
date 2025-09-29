@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
@@ -23,6 +24,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import fr.eseo.ld.mm.whatcolor.R
+import fr.eseo.ld.mm.whatcolor.model.ColourData
 import fr.eseo.ld.mm.whatcolor.model.PreviousGuess
 import kotlin.math.max
 
@@ -111,5 +113,44 @@ fun BoxWithText(
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center
         )
+    }
+}
+
+@Composable
+fun GameCard(
+    currentCorrectColour: ColourData,
+    currentIncorrectColour: ColourData,
+    option1: ColourData,
+    option2: ColourData,
+    onClick: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = modifier
+    ) {
+        BoxWithText(
+            textId = currentIncorrectColour.nameId,
+            colourId = currentCorrectColour.colourId
+        )
+        Button(
+            onClick = { onClick(option1.nameId) },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = stringResource(id = option1.nameId),
+                fontSize = 36.sp
+            )
+        }
+        Button(
+            onClick = { onClick(option2.nameId) },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = stringResource(id = option2.nameId),
+                fontSize = 36.sp
+            )
+        }
     }
 }
