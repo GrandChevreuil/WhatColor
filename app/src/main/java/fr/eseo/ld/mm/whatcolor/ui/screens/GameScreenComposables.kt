@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import android.widget.Toast
 import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavHostController
 import fr.eseo.ld.mm.whatcolor.R
 import fr.eseo.ld.mm.whatcolor.model.ColourData
 import fr.eseo.ld.mm.whatcolor.model.PreviousGuess
@@ -169,6 +170,7 @@ fun GameCard(
 @Composable
 fun GameScreen(
     viewModel: GameViewModel,
+    navController: NavHostController,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -195,6 +197,7 @@ fun GameScreen(
         LaunchedEffect(Unit) {
             Toast.makeText(context, R.string.game_over, Toast.LENGTH_LONG).show()
             viewModel.recordScore()
+            navController.popBackStack()
         }
     }
 
@@ -248,6 +251,9 @@ fun GameScreenPreview() {
     val fakeViewModel = (object : GameViewModel() {
         override val uiState: StateFlow<GameUiState> = MutableStateFlow(fakeUiState)
     }).also {
-        GameScreen(viewModel = it)
+        GameScreen(
+            viewModel = it,
+            navController = NavHostController(LocalContext.current)
+        )
     }
 }
